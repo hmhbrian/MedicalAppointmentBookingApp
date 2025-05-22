@@ -3,28 +3,35 @@ import { View, Text, StyleSheet, TouchableOpacity, Image,FlatList, ScrollView } 
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../../constants/colors';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store/store';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { RootStackParamList } from '../../navigation/type';
-import { getDoctors, getSpecialties } from '../../api/doctorApi';
-import { Doctor, Specialty } from '../../types/doctor';
+import { getDoctors, getSpecialties, getPatientByUserId } from '../../api/doctorApi';
+import { Doctor, Specialty, Patient } from '../../types/doctor';
+import CardView from '../../components/common/CardView';
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList>;
 
 const HomeScreen = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
+  const [patient, setPatient] = useState<Patient | null>(null);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [specialties, setSpecialties] = useState<Specialty[]>([]);
   const [loading, setLoading] = useState(true);
+  const user = useSelector((state: RootState) => state.auth.userId);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [doctorsData, specialtiesData] = await Promise.all([
+        const [doctorsData, specialtiesData, userData] = await Promise.all([
           getDoctors(),
           getSpecialties(),
+          getPatientByUserId(user as number),
         ]);
         setDoctors(doctorsData);
         setSpecialties(specialtiesData.slice(0, 8)); // Limit to 8 specialties for display
+        setPatient(userData);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -32,21 +39,21 @@ const HomeScreen = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [user]);
 
   const quickAccessButtons = [
-    { title: 'Đặt khám bác sĩ', icon: 'person', onPress: () => {} },
+    { title: 'Đặt khám bác sĩ', icon: 'person', onPress: () => navigation.navigate('DoctorList',{specialtyId: undefined}) },
     { title: 'Chat với bác sĩ', icon: 'chat', onPress: () => {} },
-    { title: 'Gọi video bác sĩ', icon: 'videocam', onPress: () => {} },
     { title: 'Kết quả', icon: 'description', onPress: () => {} },
     { title: 'Đặt lịch tiêm chủng', icon: 'vaccines', onPress: () => {} },
-    { title: 'Xem lịch đặt', icon: 'calendar-today', onPress: () => {} },
-    { title: 'Cộng đồng', icon: 'group', onPress: () => {} },
   ];
 
   const renderDoctorItem = ({ item }: { item: Doctor }) => (
     <TouchableOpacity style={styles.doctorCard}>
-      <Image source={{ uri: item.avatar_url }} style={styles.doctorAvatar} />
+      <Image source={item.avatar_url && item.avatar_url.trim() !== '' 
+      ? { uri: item.avatar_url }
+      : require('../../assets/images/default-avatar.png')} 
+      style={styles.doctorAvatar} />
       <Text style={styles.doctorName}>Bác sĩ {item.fullname}</Text>
       <Text style={styles.doctorSpecialty}>{item.specialty}</Text>
     </TouchableOpacity>
@@ -57,7 +64,10 @@ const HomeScreen = () => {
       style={styles.specialtyCard}
       onPress={() => navigation.navigate('DoctorList', { specialtyId: item.id })}
     >
-      <Icon name={item.icon || 'favorite'} size={40} color={colors.primary} />
+      <Image source={item.icon && item.icon.trim() !== '' 
+        ? { uri: item.icon }
+        : require('../../assets/images/default-avatar.png')} 
+      style={styles.specialtyIcon} />
       <Text style={styles.specialtyText}>{item.name}</Text>
     </TouchableOpacity>
   );
@@ -66,56 +76,76 @@ const HomeScreen = () => {
     <ScrollView style={styles.container}>
       {/* Banner Section */}
       <View style={styles.banner}>
-        <Text style={styles.bannerTitle}>Chat cùng bác sĩ chuyên khoa</Text>
-        <TouchableOpacity style={styles.chatButton}>
-          <Text style={styles.chatButtonText}>Chat ngay</Text>
-        </TouchableOpacity>
+        <View style={styles.bannerContent}>
+          <Image
+            source={
+              patient?.avatar_url && patient.avatar_url.trim() !== ''
+                ? { uri: patient?.avatar_url }
+                : require('../../assets/images/default-avatar.png')
+            }
+            style={styles.avatar}
+          />
+          <View style={styles.greeting}>
+            <Text style={styles.welcomeText}>Xin chào,</Text>
+            <Text style={styles.userName}>{patient?.fullname}</Text>
+          </View>
+          <TouchableOpacity style={styles.chatButton}>
+            <Text style={styles.chatButtonText}>Chat ngay</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Quick Access Buttons */}
-      <View style={styles.quickAccessGrid}>
-        {quickAccessButtons.map((button, index) => (
-          <TouchableOpacity key={index} style={styles.quickAccessCard} onPress={button.onPress}>
-            <Icon name={button.icon} size={30} color={colors.primary} />
-            <Text style={styles.quickAccessText}>{button.title}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {/* Doctor List Section */}
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Bác sĩ</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('DoctorList',{specialtyId: undefined})}>
-          <Icon name="arrow-forward" size={24} color={colors.primary} />
-        </TouchableOpacity>
-      </View>
-      <FlatList
-        horizontal
-        data={doctors}
-        renderItem={renderDoctorItem}
-        keyExtractor={(item) => item.doctorId.toString()}
-        showsHorizontalScrollIndicator={false}
-        style={styles.doctorList}
-      />
-
-      {/* Specialty Section */}
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Khám theo chuyên khoa</Text>
-        <TouchableOpacity>
-          <Icon name="arrow-forward" size={24} color={colors.primary} />
-        </TouchableOpacity>
-      </View>
-      {specialties.length > 0 ? (
-        <View style={styles.specialtyGrid}>
-          {specialties.map((specialty) => (
-            <View key={specialty.id.toString()}>
-              {renderSpecialtyItem({ item: specialty })}
-            </View>
+      <CardView>
+        <View style={styles.quickAccessGrid}>
+          {quickAccessButtons.map((button, index) => (
+            <TouchableOpacity key={index} style={styles.quickAccessCard} onPress={button.onPress}>
+              <Icon name={button.icon} size={30} color={colors.primary} />
+              <Text style={styles.quickAccessText}>{button.title}</Text>
+            </TouchableOpacity>
           ))}
         </View>
-      ) : (
-        <Text style={styles.noDataText}>Không có chuyên khoa nào để hiển thị</Text>
-      )}
+      </CardView>
+      
+       {/* Doctor List Section */}
+      <CardView>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Bác sĩ</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('DoctorList',{specialtyId: undefined})}>
+            <Icon name="arrow-forward" size={24} color={colors.primary} />
+          </TouchableOpacity>
+        </View>
+        <FlatList
+          horizontal
+          data={doctors}
+          renderItem={renderDoctorItem}
+          keyExtractor={(item) => item.doctorId.toString()}
+          showsHorizontalScrollIndicator={false}
+          style={styles.doctorList}
+        />
+      </CardView>
+          
+      {/* Specialty Section */}    
+      <CardView>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Khám theo chuyên khoa</Text>
+          <TouchableOpacity>
+            <Icon name="arrow-forward" size={24} color={colors.primary} />
+          </TouchableOpacity>
+        </View>
+        {specialties.length > 0 ? (
+          <FlatList
+            data={specialties}
+            renderItem={renderSpecialtyItem}
+            keyExtractor={(item) => item.id.toString()}
+            numColumns={4}
+            columnWrapperStyle={styles.columnWrapper}
+          />
+        ) : (
+          <Text style={styles.noDataText}>Không có chuyên khoa nào để hiển thị</Text>
+        )}
+      </CardView>
+      
     </ScrollView>
   );
 };
@@ -132,12 +162,31 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
   },
-  bannerTitle: {
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 12,
+    backgroundColor: '#eee',
+  },
+  bannerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  greeting: {
+    flex: 1,
+  },
+  welcomeText: {
+    fontSize: 14,
+    color: '#FFFFFF',
+  },
+  userName: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#FFFFFF',
-    marginBottom: 10,
   },
+
   chatButton: {
     backgroundColor: '#FFFFFF',
     paddingVertical: 8,
@@ -179,8 +228,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 10,
-    marginVertical: 16,
+    marginVertical: 14,
   },
   sectionTitle: {
     fontSize: 18,
@@ -192,24 +240,16 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
   doctorList: {
-    paddingLeft: 10,
+    paddingLeft: 0,
   },
   doctorCard: {
     width: 120,
-    backgroundColor: colors.white,
-    borderRadius: 12,
-    padding: 10,
     alignItems: 'center',
     marginRight: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   doctorAvatar: {
-    width: 60,
-    height: 60,
+    width: 65,
+    height: 65,
     borderRadius: 30,
     marginBottom: 8,
   },
@@ -224,32 +264,25 @@ const styles = StyleSheet.create({
     color: colors.gray,
     textAlign: 'center',
   },
-  specialtyGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+  columnWrapper: {
     justifyContent: 'space-between',
-    paddingHorizontal: 10,
-    marginTop:15,
-    marginBottom: 20,
+    marginBottom: 10,
   },
   specialtyCard: {
-    width: '100%',
-    backgroundColor: colors.white,
-    borderRadius: 12,
-    padding: 10,
+    width: '24%',
     alignItems: 'center',
-    marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   specialtyText: {
     marginTop: 8,
     fontSize: 12,
     color: colors.text,
     textAlign: 'center',
+  },
+  specialtyIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginBottom: 8,
   },
   noDataText: {
     textAlign: 'center',

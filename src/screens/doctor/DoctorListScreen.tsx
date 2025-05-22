@@ -37,20 +37,32 @@ const DoctorListScreen = () => {
   }, [specialtyId]);
 
   const renderDoctorItem = ({ item }: { item: Doctor }) => (
-    <TouchableOpacity style={styles.doctorCard}>
-      <Image source={{ uri: item.avatar_url }} style={styles.doctorAvatar} />
+    <View style={styles.doctorCard}>
+      <Image source={item.avatar_url && item.avatar_url.trim() !== '' 
+      ? { uri: item.avatar_url }
+      : require('../../assets/images/default-avatar.png')} 
+       style={styles.doctorAvatar} />
       <View style={styles.doctorInfo}>
         <Text style={styles.doctorName}>Bác sĩ {item.fullname}</Text>
-        <Text style={styles.doctorSpecialty}>{item.specialty}</Text>
+        <Text style={styles.doctorExperience}>{item.experienceYears} năm kinh nghiệm</Text>
+        <View style={styles.specialtiesContainer}>
+          <Text>{item.specialty}</Text>
+        </View>
+        <TouchableOpacity
+          style={styles.bookButton}
+          onPress={() => navigation.navigate('Booking', { doctorId: item.doctorId })}
+        >
+          <Text style={styles.bookButtonText}>Đặt lịch ngay</Text>
+        </TouchableOpacity>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Icon name="arrow-back" size={24} color={colors.text} />
+          <Icon name="arrow-back" size={24} color={colors.white} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>
           {specialtyId ? 'Bác sĩ theo chuyên khoa' : 'Danh sách bác sĩ'}
@@ -60,7 +72,7 @@ const DoctorListScreen = () => {
         data={doctors}
         renderItem={renderDoctorItem}
         keyExtractor={(item) => item.doctorId.toString()}
-        contentContainerStyle={styles.listContainer}
+        contentContainerStyle={styles.listContainer}ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
     </View>
   );
@@ -77,12 +89,31 @@ const styles = StyleSheet.create({
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+    backgroundColor: '#1E90FF',
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.text,
+    fontSize: 16,
+    color: colors.white,
     marginLeft: 16,
+    flex: 1,
+  },
+  filterContainer: {
+    flexDirection: 'row',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  filterButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  filterText: {
+    fontSize: 14,
+    color: colors.primary,
+  },
+  filterIcon: {
+    marginLeft: 4,
   },
   listContainer: {
     padding: 16,
@@ -92,12 +123,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     borderRadius: 12,
     padding: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   doctorAvatar: {
     width: 60,
@@ -109,15 +134,58 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
+  doctorTitle: {
+    fontSize: 14,
+    color: colors.gray,
+  },
   doctorName: {
     fontSize: 16,
     fontWeight: '600',
     color: colors.text,
+    marginTop: 4,
   },
-  doctorSpecialty: {
+  doctorExperience: {
     fontSize: 14,
     color: colors.gray,
     marginTop: 4,
+  },
+  specialtiesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 4,
+    borderRadius: 20,
+  },
+  specialty: {
+    fontSize: 14,
+    color: colors.primary,
+  },
+  addressContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  address: {
+    fontSize: 14,
+    color: colors.gray,
+    marginLeft: 4,
+    flex: 1,
+  },
+  bookButton: {
+    backgroundColor: colors.primary,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignSelf: 'flex-end',
+    marginTop: 12,
+  },
+  bookButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  separator: {
+    height: 1,
+    marginVertical: 12,
   },
 });
 

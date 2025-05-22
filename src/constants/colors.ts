@@ -7,4 +7,5 @@ export const colors = {
   border: '#C7C7CC',
   error: '#FF3B30',
   white: '#FFFFFF',
+  red: '#FF0000'
 };

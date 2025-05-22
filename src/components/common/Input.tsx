@@ -8,9 +8,10 @@ interface InputProps {
   placeholder?: string;
   secureTextEntry?: boolean;
   error?: string;
+  keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad';
 }
 
-const Input: React.FC<InputProps> = ({ value, onChangeText, placeholder, secureTextEntry, error }) => {
+const Input: React.FC<InputProps> = ({ value, onChangeText, placeholder, secureTextEntry, error, keyboardType }) => {
   return (
     <View style={styles.container}>
       <TextInput
@@ -20,6 +21,7 @@ const Input: React.FC<InputProps> = ({ value, onChangeText, placeholder, secureT
         placeholder={placeholder}
         secureTextEntry={secureTextEntry}
         placeholderTextColor={colors.gray}
+        keyboardType={keyboardType}
       />
       {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
