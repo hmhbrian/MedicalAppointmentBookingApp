@@ -1,5 +1,5 @@
 import axiosInstance from './axiosInstance';
-import { Doctor, Specialty, Schedule, Patient, Appointment, Feedback } from '../types/doctor';
+import { Doctor, Specialty, Schedule, Patient, Appointment, Feedback, MedicalRecordResponse, PrescriptionResponse } from '../types/doctor';
 
 export const getDoctors = async (): Promise<Doctor[]> => {
   const response = await axiosInstance.get('/doctors');
@@ -53,7 +53,7 @@ export const cancelAppointmentById = async (
 ) => {
   const res = await axiosInstance.post('/appointments/status', {
     appointmentId,
-    status: 'hủy',
+    status: 'Hủy',
     reason,
     updatedByUserId,
   });
@@ -80,7 +80,27 @@ export const getFeedbacks = async (): Promise<Feedback[]> => {
   return response.data;
 };
 
+export const getMedicalRecordsByPatientId = async (patientId: number): Promise<MedicalRecordResponse[]> => {
+  try {
+    const response = await axiosInstance.get(`/medical-records/patient/${patientId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching medical records:', error);
+    throw new Error('Failed to fetch medical records');
+  }
+};
+
+export const getPrescriptionByRecordId = async (recordId: number): Promise<PrescriptionResponse> => {
+  try {
+    const response = await axiosInstance.get(`/prescriptions/by-record/${recordId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching prescription:', error);
+    throw new Error('Failed to fetch prescription');
+  }
+};
+
 export const updateProfile = async (patientId: number, updatedData: Partial<Patient>): Promise<Patient> => {
-  const res = await axiosInstance.put('/patients', { patientId, ...updatedData });
+  const res = await axiosInstance.put(`/patients/${patientId}`, updatedData);
   return res.data;
 };

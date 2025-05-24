@@ -44,7 +44,7 @@ const HomeScreen = () => {
   const quickAccessButtons = [
     { title: 'Đặt khám bác sĩ', icon: 'person', onPress: () => navigation.navigate('DoctorList',{specialtyId: undefined}) },
     { title: 'Chat với bác sĩ', icon: 'chat', onPress: () => {} },
-    { title: 'Kết quả', icon: 'description', onPress: () => {} },
+    { title: 'Kết quả', icon: 'description', onPress: () => navigation.navigate('MedicalRecords') },
     { title: 'Đặt lịch tiêm chủng', icon: 'vaccines', onPress: () => {} },
   ];
 
@@ -119,7 +119,7 @@ const HomeScreen = () => {
           horizontal
           data={doctors}
           renderItem={renderDoctorItem}
-          keyExtractor={(item) => item.doctorId.toString()}
+          keyExtractor={(item) => item.id.toString()}
           showsHorizontalScrollIndicator={false}
           style={styles.doctorList}
         />

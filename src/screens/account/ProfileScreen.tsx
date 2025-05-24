@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { getPatientByUserId } from '../../api/doctorApi';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -25,8 +25,7 @@ const ProfileScreen = () => {
   const userId = useSelector((state: RootState) => state.auth.userId);
   const navigation = useNavigation<NavigationProp>();
 
-  useEffect(() => {
-    const fetchPatient = async () => {
+  const fetchPatient = async () => {
       try {
         if (!userId) throw new Error('User ID not found');
         const data = await getPatientByUserId(userId);
@@ -38,8 +37,15 @@ const ProfileScreen = () => {
       }
     };
 
+  useEffect(() => {
     fetchPatient();
   }, [userId]);
+
+   useFocusEffect(
+    useCallback(() => {
+      fetchPatient(); // Refetch data when screen comes into focus
+    }, [fetchPatient])
+  );
 
   if (loading) {
     return (
@@ -71,14 +77,14 @@ const ProfileScreen = () => {
           </View>
 
           <InfoRow label="Mã bệnh nhân" value={patient.patientcode} />
-          <InfoRow label="Mã bảo hiểm y tế" value={patient.insurance_number || 'Chưa cập nhật'} />
+          <InfoRow label="Mã bảo hiểm y tế" value={patient.insuranceNumber || 'Chưa cập nhật'} />
           <InfoRow label="Họ và tên" value={patient.fullname} />
           <InfoRow label="Số điện thoại" value={patient.phoneNumber} />
           <InfoRow label="Ngày sinh" value={patient.dateOfBirth} />
           <InfoRow label="Giới tính" value={genderString} />
           <InfoRow label="Địa chỉ" value={patient.address} />
           <InfoRow label="Email" value={patient.email} />
-          <InfoRow label="Tiền sử bệnh" value={patient.medical_history || 'Không có'} />
+          <InfoRow label="Tiền sử bệnh" value={patient.medicalHistory || 'Không có'} />
         </View>
       </ScrollView>
     </View>

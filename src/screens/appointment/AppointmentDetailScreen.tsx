@@ -40,14 +40,14 @@ const AppointmentDetailScreen = () => {
     switch (status.toLowerCase()) {
       case 'xác nhận':
         return '#28a745'; // xanh lá
-      case 'chưa xác nhận':
       case 'chờ xác nhận':
         return '#ffc107'; // vàng
       case 'hủy':
-      case 'từ chối':
+      case 'Hủy':
+      case 'Từ chối':
         return '#dc3545'; // đỏ
       default:
-        return '#007AFF';
+        return '#007AFF'; // mặc định xanh dương
     }
   };
 
@@ -58,7 +58,7 @@ const AppointmentDetailScreen = () => {
       await cancelAppointmentById(appointment.id, cancelReason, user as number);
       Alert.alert('Thành công', 'Lịch hẹn đã được huỷ');
       setShowReasonModal(false);
-      navigation.goBack();
+      navigation.goBack(); 
     } catch (error) {
       console.error('Lỗi huỷ lịch hẹn:', error);
       Alert.alert('Lỗi', 'Không thể huỷ lịch hẹn. Vui lòng thử lại.');

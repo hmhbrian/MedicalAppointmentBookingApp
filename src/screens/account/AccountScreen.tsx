@@ -9,6 +9,8 @@ import { getPatientByUserId } from '../../api/doctorApi';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../navigation/type';
+import { useDispatch } from 'react-redux';
+import { logout } from '../../store/slices/authSlice';
 import { colors } from '../../constants/colors';
 
 type MenuItemProps = {
@@ -36,6 +38,7 @@ const AccountScreen = () => {
     const [patient, setPatient] = useState<Patient | null>(null);
     const navigation = useNavigation<AccountScreenNavigationProp>();
     const user = useSelector((state: RootState) => state.auth.userId);
+    const dispatch = useDispatch();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -53,7 +56,7 @@ const AccountScreen = () => {
     }, [ user]);
 
     return (
-        <View style={styles.container}>
+      <View style={styles.container}>
         {/* Header Profile */}
         <View style={styles.profileCard}>
             <Image
@@ -82,10 +85,27 @@ const AccountScreen = () => {
             <MenuItem icon="share-variant" text="Chia sẻ ứng dụng" color="#EC407A" onPress={() => {}}/>
             <MenuItem icon="headset" text="Liên hệ & hỗ trợ" color="#03A9F4" onPress={() => {}}/>
             <MenuItem icon="cog-outline" text="Cài đặt" color="#424242" onPress={() => {}}/>
-            <MenuItem icon="logout" text="Đăng xuất" color="#E53935" onPress={() => {}}/>
-        </View>
-
-        </View>
+            <MenuItem
+              icon="logout"
+              text="Đăng xuất"
+              color="#E53935"
+              onPress={() => {
+                Alert.alert('Đăng xuất', 'Bạn có chắc chắn muốn đăng xuất?', [
+                  {
+                    text: 'Hủy',
+                    style: 'cancel',
+                  },
+                  {
+                    text: 'Đăng xuất',
+                    onPress: () => {
+                      dispatch(logout());
+                    },
+                  },
+                ]);
+              }}
+            />
+          </View>
+      </View>
   );
 };
 

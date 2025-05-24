@@ -6,7 +6,7 @@ export interface Doctor {
   gender : number;
   address :  string;
   avatar_url: string;
-  doctorId: number;
+  id: number;
   doctorcode: string;
   department: string;
   specialty: string;
@@ -50,8 +50,8 @@ export interface Patient {
   address: string,
   avatar_url: string,
   patientcode: string,
-  medical_history: string | null;
-  insurance_number: string | null;
+  medicalHistory: string;
+  insuranceNumber: string;
 }
 
 export interface Appointment {
@@ -75,4 +75,39 @@ export interface Feedback {
   rating: number;
   comment: string;
   createdAt: string;
+}
+
+export interface MedicalRecordResponse {
+  id: number;
+  patientName: string;
+  patientId: number;
+  doctorName: string;
+  doctorId: number;
+  appointmentId: number;
+  initialSymptoms: string;
+  diagnosis: string;
+  visitDate: string; 
+  visitNumber: number;
+}
+
+export interface PrescriptionResponse {
+  id: number;
+  recordId: number;
+  inpatientRecordId: number;
+  doctorId: number;
+  doctorName: string;
+  pharmacistId: number;
+  pharmacistName: string;
+  status: string;
+  prescriptionDate: string; 
+  details: PrescriptionDetailResponse[];
+}
+
+export interface PrescriptionDetailResponse {
+  id: number;
+  medicineId: number;
+  medicineName: string;
+  quantity: number;
+  dosage: string;
+  notes: string;
 }

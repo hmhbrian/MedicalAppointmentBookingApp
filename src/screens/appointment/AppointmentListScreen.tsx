@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View, Text, FlatList, TouchableOpacity,
   StyleSheet, ActivityIndicator
@@ -7,7 +7,7 @@ import { getAppointmentsByPatientId, getPatientByUserId } from '../../api/doctor
 import { Appointment } from '../../types/doctor';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../navigation/type';
 
@@ -22,8 +22,7 @@ const AppointmentListScreen = () => {
 
   const navigation = useNavigation<AppointmentNavigationProp>();
 
-  useEffect(() => {
-    const fetchData = async () => {
+  const fetchData = async () => {
       try {
         const [patientData] = await Promise.all([
                   getPatientByUserId(user as number),
@@ -36,17 +35,26 @@ const AppointmentListScreen = () => {
         setLoading(false);
       }
     };
+
+  useEffect(() => {
     fetchData();
   }, [user]);
+
+   useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [fetchData])
+  );
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'xác nhận':
         return '#28a745'; // xanh lá
-      case 'chưa xác nhận':
+      case 'chờ xác nhận':
         return '#ffc107'; // vàng
       case 'hủy':
-      case 'từ chối':
+      case 'Hủy':
+      case 'Từ chối':
         return '#dc3545'; // đỏ
       default:
         return '#007AFF'; // mặc định xanh dương

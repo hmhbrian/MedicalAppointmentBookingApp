@@ -50,7 +50,7 @@ const DoctorListScreen = () => {
         </View>
         <TouchableOpacity
           style={styles.bookButton}
-          onPress={() => navigation.navigate('Booking', { doctorId: item.doctorId })}
+          onPress={() => navigation.navigate('Booking', { doctorId: item.id })}
         >
           <Text style={styles.bookButtonText}>Đặt lịch ngay</Text>
         </TouchableOpacity>
@@ -71,8 +71,9 @@ const DoctorListScreen = () => {
       <FlatList
         data={doctors}
         renderItem={renderDoctorItem}
-        keyExtractor={(item) => item.doctorId.toString()}
-        contentContainerStyle={styles.listContainer}ItemSeparatorComponent={() => <View style={styles.separator} />}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={styles.listContainer}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
     </View>
   );

@@ -9,6 +9,7 @@ import BookingScreen from '../screens/doctor/BookingScreen';
 import AppointmentDetailScreen from '../screens/appointment/AppointmentDetailScreen';
 import ProfileScreen from '../screens/account/ProfileScreen';
 import UpdateProfileScreen from '../screens/account/UpdateProfileScreen';
+import MedicalRecordsScreen from '../screens/home/MedicalRecordsScreen';
 import { RootStackParamList } from './type';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/store';
@@ -52,6 +53,7 @@ const AppNavigator = () => {
             <Stack.Screen name="AppointmentDetail" component={AppointmentDetailScreen} />
             <Stack.Screen name="ProfileUser" component={ProfileScreen} />
             <Stack.Screen name="UpdateProfile" component={UpdateProfileScreen} />
+            <Stack.Screen name="MedicalRecords" component={MedicalRecordsScreen} />
           </>
         ) : (
           <Stack.Screen name="Auth" component={AuthNavigator} />

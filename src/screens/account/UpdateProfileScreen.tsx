@@ -34,8 +34,8 @@ const UpdateProfileScreen = () => {
   const [dateOfBirth, setDateOfBirth] = useState(patient.dateOfBirth || '');
   const [gender, setGender] = useState(patient.gender?.toString() || '0'); // 0: Nam, 1: Nữ
   const [address, setAddress] = useState(patient.address || '');
-  const [medicalHistory, setMedicalHistory] = useState(patient.medical_history || '');
-  const [insuranceNumber, setInsuranceNumber] = useState(patient.insurance_number || '');
+  const [medicalHistory, setMedicalHistory] = useState(patient.medicalHistory || '');
+  const [insuranceNumber, setInsuranceNumber] = useState(patient.insuranceNumber || '');
 
   const handleUpdate = async () => {
     try {
@@ -46,8 +46,8 @@ const UpdateProfileScreen = () => {
         dateOfBirth,
         gender: parseInt(gender),
         address,
-        medical_history: medicalHistory,
-        insurance_number: insuranceNumber,
+        medicalHistory: medicalHistory,
+        insuranceNumber: insuranceNumber,
       };
 
       await updateProfile(patient.id, updatedData);

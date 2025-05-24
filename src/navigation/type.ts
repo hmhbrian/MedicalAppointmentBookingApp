@@ -25,6 +25,7 @@ export type RootStackParamList = {
   AppointmentDetail: {
     appointment: Appointment;
   };
+  MedicalRecords: undefined;
 };
 
 export type AppointmentStackParamList = {
